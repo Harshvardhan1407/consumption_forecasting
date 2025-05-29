@@ -1,4 +1,4 @@
-version: '3.8'
+# version: '3.8'
 
 services:
   postgres:
@@ -12,7 +12,7 @@ services:
     restart: unless-stopped
 
   airflow-webserver:
-    image: apache/airflow:2.9.1
+    image: custom-airflow:latest
     restart: unless-stopped
     depends_on:
       - airflow-scheduler
@@ -32,7 +32,7 @@ services:
     command: webserver
 
   airflow-scheduler:
-    image: apache/airflow:2.9.1
+    image: custom-airflow:latest
     restart: unless-stopped
     depends_on:
       - postgres
@@ -47,7 +47,7 @@ services:
     command: scheduler
 
   airflow-init:
-    image: apache/airflow:2.9.1
+    image: custom-airflow:latest
     depends_on:
       - postgres
     environment:

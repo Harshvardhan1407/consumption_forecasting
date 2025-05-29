@@ -2,6 +2,5 @@ pandas
 numpy
 pymongo
 apache-airflow
-pymongo
 requests
 pyarrow

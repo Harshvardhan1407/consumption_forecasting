@@ -1,15 +1,15 @@
 import pandas as pd
-from config.db_config import db
+# from config.db_config import db
 from logger_file import logger 
 import os
 
-def read_parquet(file_path: str) -> pd.DataFrame:
+def read_parquet_file(file_path: str) -> pd.DataFrame:
     try:
         df = pd.read_parquet(file_path)
-        print(f"DataFrame shape: {df.shape}")
+        logger.info(f"DataFrame shape: {df.shape}")
         return df
     except Exception as e:
-        print(f"Error reading parquet file: {e}")
+        logger.error(f"Error reading parquet file: {e}",exc_info=True)
         return pd.DataFrame()  # Return an empty DataFrame on error
 
 
@@ -40,8 +40,8 @@ def get_data_from_mongo(db):
         '1:0:71:27:0:255': 1,
         '1:0:1:29:0:255': 1,
         '1:0:9:29:0:255': 1,
-        "serial_no":1,
         "location_id":1,
+        "serial_no":1,
     }))
     
     # Convert to DataFrame

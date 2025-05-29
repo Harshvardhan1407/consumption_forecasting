@@ -10,7 +10,8 @@ formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(filename)s:%(line
 
 # Add a RotatingFileHandler to manage log file size
 rotating_handler = RotatingFileHandler(
-    '../logs/load_forecasting.log',  # Log file name
+    'logs/load_forecasting.log',  # Log file name
+    # "D:\Deployment\jpdcl_load_forecasting\logs\load_forecasting.log",
     maxBytes = 10 * 1024 * 1024,  # Maximum file size: 10 MB
     backupCount = 5   # Keep 3 backup log files
 )

@@ -1,13 +1,10 @@
-from airflow import DAG # type: ignore
-from airflow.operators.python import PythonOperator # type: ignore
-import os
-
 from datetime import datetime, timedelta
 from logger_file import logger  # Assuming logger.py is in the same directory
 from etl.ingestion import read_parquet_file  # Assuming ingestion.py is in the same directory
 import pandas as pd
 import numpy as np
 from etl.transformation import sensor_data_handling, basic_dataframe_checks, process_location_wrapper
+import os
 import config.etl_config 
 import threading
 import time
@@ -20,20 +17,19 @@ pd.set_option('display.float_format', '{:.6f}'.format)  # Show 6 decimal places
 
 def extract():
     try:
-        pass
-    except Exception as e:
-        logger.error(f"Error in extraction: {e}", exc_info=True)
-        return pd.DataFrame()  # Return an empty DataFrame on error
-
-def transform():
-    try:
         directory_path1 = config.etl_config.complete_data_file_path
         directory_path2 = config.etl_config.sensor_data_file_path
         logger.info(f"Reading parquet file from: {directory_path1} and {directory_path2}")
          # Ensure the directory exists
         df = read_parquet_file(file_path=directory_path1)
         sensor_df = read_parquet_file(file_path=directory_path2)
-        
+        return df, sensor_df
+    except Exception as e:
+        logger.error(f"Error in extraction: {e}", exc_info=True)
+        return pd.DataFrame()  # Return an empty DataFrame on error
+
+def transform(df,sensor_df):
+    try:
         logger.info("Transformation start")
         sensor_df = sensor_data_handling(sensor_df)
         if sensor_df.empty:
@@ -70,40 +66,11 @@ def transform():
     except Exception as e:
         logger.error(f"Error in transformation: {e}", exc_info=True)
         return pd.DataFrame()
-
-def load():
-    print("Loading data...")
-
-default_args = {
-    'owner': 'airflow',
-    'retries': 1,
-    'retry_delay': timedelta(minutes=5),
-}
-
-with DAG(
-    dag_id='sample_etl_dag',
-    default_args=default_args,
-    description='A simple ETL DAG',
-    schedule_interval='@daily',  # runs once a day
-    start_date=datetime(2024, 1, 1),
-    catchup=False,
-    tags=['example'],
-) as dag:
-
-    task_extract = PythonOperator(
-        task_id='extract',
-        python_callable=extract,
-    )
-
-    task_transform = PythonOperator(
-        task_id='transform',
-        python_callable=transform,
-    )
-
-    task_load = PythonOperator(
-        task_id='load',
-        python_callable=load,
-    )
-
-    # Define task dependencies
-    task_extract >> task_transform >> task_load
+    
+if __name__ == "__main__":
+    df, sensor_df = extract()
+    if not df.empty and not sensor_df.empty:
+        transformed_data = transform(df, sensor_df)
+        # print(transformed_data.head())
+    else:
+        logger.warning("Data extraction failed. Skipping transformation.")

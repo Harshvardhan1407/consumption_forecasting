@@ -1,7 +1,7 @@
 # Dockerfile
 FROM apache/airflow:2.9.1
 
-USER root
+# USER root
 
 # Install system packages (if needed)
 # RUN apt-get update && apt-get install -y curl
