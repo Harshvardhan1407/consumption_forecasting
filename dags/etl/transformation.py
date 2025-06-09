@@ -8,11 +8,15 @@ from logger_file import logger
 
 def sensor_data_handling(sensor_df):
 	try:
+		logger.info("Sensor data handling started")
 		sensor_df = sensor_df[sensor_df['admin_status'] != "N"]
 		sensor_df = sensor_df[['location_id', 'site_id', 'meter_ct_mf','meter_load_mf','meter_volt_mf']]
+		logger.info("Sensor data handling started2")
+
 		for col in ['meter_ct_mf', 'meter_load_mf', 'meter_volt_mf']:
 			sensor_df[col] = pd.to_numeric(sensor_df[col], errors='coerce')
 			# sensor_df[['meter_ct_mf','meter_load_mf','meter_volt_mf']] = sensor_df[['meter_ct_mf','meter_load_mf','meter_volt_mf']].astype(float)
+		logger.info(f"Sensor DataFrame shape after filtering: {sensor_df.shape}")
 		return sensor_df
 	except Exception as e:
 		logger.error(f"Error in sensor_data_handling: {e}", exc_info=True)

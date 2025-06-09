@@ -39,12 +39,18 @@ def transform():
         if sensor_df.empty:
             logger.warning("Sensor data is empty after processing. Skipping transformation.")
             return pd.DataFrame()
-        
         # merge the main DataFrame with sensor data on 'location_id'
-        load_df_with_sensor_data = df.merge(sensor_df, on='location_id', how='left')
+        try:
+            logger.info(f"data merging started with shape: {df.columns} and sensor_df shape: {sensor_df.columns}")
+            load_df_with_sensor_data = df.merge(sensor_df, on='location_id', how='left')
+            logger.info(f"data merged with shape: {load_df_with_sensor_data.shape}")
+        except KeyError as e:
+            logger.error(f"KeyError during merge: {e}", exc_info=True)
+            return pd.DataFrame()
+
+
         load_df_with_sensor_data.dropna(inplace=True)
         logger.info("data merged  successfully")
-        
         # perform basic checks on the merged DataFrame
         basic_dataframe_checks(load_df_with_sensor_data)
 
@@ -76,7 +82,7 @@ def load():
 
 default_args = {
     'owner': 'airflow',
-    'retries': 1,
+    'retries': 0,
     'retry_delay': timedelta(minutes=5),
 }
 
